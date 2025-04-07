@@ -111,3 +111,5 @@ REST_FRAMEWORK = {
         'django_filters.rest_framework.DjangoFilterBackend',
     ],
 }
+
+ALLOWED_HOSTS = ['web-production-22cc4.up.railway.app', '.railway.app', 'localhost', '127.0.0.1']
