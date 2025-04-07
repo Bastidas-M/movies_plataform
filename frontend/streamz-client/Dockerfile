@@ -13,8 +13,9 @@ RUN npm run build
 # Instalar un servidor ligero para servir la aplicación
 RUN npm install -g serve
 
-# Exponer el puerto
-EXPOSE 3000
+# Exponer el puerto (Railway proporciona PORT como variable de entorno)
+ENV PORT=3000
+EXPOSE ${PORT}
 
-# Comando para iniciar el servidor
-CMD ["serve", "-s", "build", "-l", "3000"]
+# Comando para iniciar el servidor (más explícito)
+CMD ["sh", "-c", "serve -s build -l ${PORT:-3000}"]
