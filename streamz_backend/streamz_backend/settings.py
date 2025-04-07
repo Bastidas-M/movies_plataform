@@ -68,6 +68,7 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
+    'https://web-production-22cc4.up.railway.app',
     "http://localhost:3000",  # Para desarrollo con React
 ]
 
