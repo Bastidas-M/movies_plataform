@@ -115,6 +115,6 @@ REST_FRAMEWORK = {
 
 ALLOWED_HOSTS = ['web-production-08ce.up.railway.app', '.railway.app', 'localhost', '127.0.0.1']
 
-CSRF_TSRUSTED_ORIGIN = [
+CSRF_TRUSTED_ORIGINS = [
     'https://web-production-08ce.up.railway.app'
 ]
