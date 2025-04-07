@@ -77,12 +77,12 @@ const ProfilePage = () => {
         last_name: currentUser.last_name || '',
         email: currentUser.email || ''
       });
-      
+
       // Fetch subscription plans
       axios.get(API_ENDPOINTS.PLANS)
         .then(response => setPlans(response.data))
         .catch(error => console.error('Error fetching plans:', error));
-      
+
       // Fetch watch history
       axios.get(API_ENDPOINTS.HISTORY)
         .then(response => setHistory(response.data.results || response.data))
@@ -111,15 +111,15 @@ const ProfilePage = () => {
     <Box sx={{ backgroundColor: '#111', minHeight: '100vh', color: 'white' }}>
       <ProfileContainer maxWidth="md">
         <SectionTitle variant="h4" gutterBottom>Mi Perfil</SectionTitle>
-        
+
         <ProfilePaper elevation={3}>
           <Grid container spacing={4}>
             <Grid item xs={12} md={4}>
               <Box display="flex" flexDirection="column" alignItems="center">
-                <Avatar 
-                  sx={{ 
-                    width: 120, 
-                    height: 120, 
+                <Avatar
+                  sx={{
+                    width: 120,
+                    height: 120,
                     bgcolor: '#e50914',
                     fontSize: '3rem',
                     mb: 2
@@ -135,7 +135,7 @@ const ProfilePage = () => {
                 )}
               </Box>
             </Grid>
-            
+
             <Grid item xs={12} md={8}>
               <Typography variant="h6" gutterBottom>Información Personal</Typography>
               <StyledTextField
@@ -146,7 +146,7 @@ const ProfilePage = () => {
                 value={profile.first_name}
                 onChange={handleChange}
               />
-              
+
               <StyledTextField
                 label="Apellido"
                 variant="outlined"
@@ -155,7 +155,7 @@ const ProfilePage = () => {
                 value={profile.last_name}
                 onChange={handleChange}
               />
-              
+
               <StyledTextField
                 label="Correo electrónico"
                 variant="outlined"
@@ -164,7 +164,7 @@ const ProfilePage = () => {
                 value={profile.email}
                 onChange={handleChange}
               />
-              
+
               <UpdateButton
                 variant="contained"
                 onClick={handleUpdateProfile}
@@ -173,9 +173,9 @@ const ProfilePage = () => {
               </UpdateButton>
             </Grid>
           </Grid>
-          
+
           <Divider sx={{ my: 4, backgroundColor: '#333' }} />
-          
+
           <Box>
             <Typography variant="h6" gutterBottom>Detalles de Suscripción</Typography>
             {currentUser?.subscription_active ? (
@@ -187,7 +187,7 @@ const ProfilePage = () => {
                 Suscripción inactiva
               </Typography>
             )}
-            
+
             {plans.length > 0 && (
               <Grid container spacing={2}>
                 {plans.map(plan => (
@@ -196,13 +196,62 @@ const ProfilePage = () => {
                       <Typography variant="h6">{plan.name}</Typography>
                       <Typography variant="body1">${plan.price}/mes</Typography>
                       <Typography variant="body2">
-                        {plan.max_screens} {plan.max_screens === 1 ? 'pantalla' : 'pantallas'} • 
+                        {plan.max_screens} {plan.max_screens === 1 ? 'pantalla' : 'pantallas'} •
                         Calidad {plan.video_quality}
                       </Typography>
                     </PlanCard>
                   </Grid>
                 ))}
               </Grid>
+            )}
+          </Box>
+          <Box>
+            <Typography variant="h6" gutterBottom>Historial de Visualización</Typography>
+
+            {history.length > 0 ? (
+              <Grid container spacing={2}>
+                {history.map((item) => (
+                  <Grid item xs={12} key={item.id}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        p: 2,
+                        backgroundColor: '#333',
+                        borderRadius: 1,
+                        mb: 1
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          width: 120,
+                          height: 70,
+                          backgroundColor: '#222',
+                          backgroundImage: `url(${item.content_details?.thumbnail || ''})`,
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center',
+                          mr: 2,
+                          borderRadius: 1
+                        }}
+                      />
+                      <Box>
+                        <Typography variant="body1">
+                          {item.content_details?.title || item.episode_details?.title || 'Contenido sin título'}
+                        </Typography>
+                        <Typography variant="body2" color="textSecondary">
+                          Visto: {new Date(item.watched_date).toLocaleString()}
+                        </Typography>
+                        <Typography variant="body2" color="textSecondary">
+                          Progreso: {Math.round(item.watched_percentage)}%
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Grid>
+                ))}
+              </Grid>
+            ) : (
+              <Typography variant="body1" color="textSecondary">
+                No hay historial de visualización disponible.
+              </Typography>
             )}
           </Box>
         </ProfilePaper>

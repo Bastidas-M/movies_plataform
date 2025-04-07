@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { AppBar, Toolbar, Typography, Button, IconButton, Avatar, Menu, MenuItem } from '@mui/material';
-import { Search as SearchIcon, AccountCircle } from '@mui/icons-material';
+import { AppBar, Toolbar, Typography, Button, IconButton, Menu, MenuItem } from '@mui/material';
+import { Search as AccountCircle } from '@mui/icons-material';
 import styled from 'styled-components';
 import AuthContext from '../context/AuthContext';
 
@@ -31,7 +31,7 @@ const SearchInput = styled.input`
 `;
 
 const Navbar = () => {
-  const { currentUser, isAuthenticated, logout } = useContext(AuthContext);
+  const { isAuthenticated, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = React.useState(null);
 

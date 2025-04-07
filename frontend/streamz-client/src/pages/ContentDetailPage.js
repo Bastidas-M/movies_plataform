@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Typography, Button, Box, Grid, Chip, Divider } from '@mui/material';
-import { PlayArrow, Add, ThumbUp } from '@mui/icons-material';
+import { PlayArrow, Add } from '@mui/icons-material';
 import axios from 'axios';
 import { API_ENDPOINTS } from '../api/config';
 import AuthContext from '../context/AuthContext';
