@@ -1,5 +1,5 @@
 [phases.setup]
-nixPkgs = ["python39", "pip", "gcc"]
+nixPkgs = ["python39Full", "gcc"]
 
 [phases.install]
 cmds = ["pip install -r requirements.txt"]
@@ -8,4 +8,4 @@ cmds = ["pip install -r requirements.txt"]
 cmds = ["python manage.py collectstatic --noinput"]
 
 [start]
-cmd = "gunicorn streamz_backend.wsgi"
+cmd = "gunicorn streamz_backend.wsgi:application --bind 0.0.0.0:$PORT"
