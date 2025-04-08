@@ -11,6 +11,10 @@ import ContentDetailPage from './pages/ContentDetailPage';
 import PlayerPage from './pages/PlayerPage';
 import ProfilePage from './pages/ProfilePage';
 import NotFoundPage from './pages/NotFoundPage';
+import MoviesPage from './pages/MoviesPage';
+import SeriesPage from './pages/SeriesPage';
+import DocumentariesPage from './pages/DocumentariesPage';
+import MyListPage from './pages/MyListPage';
 
 const darkTheme = createTheme({
   palette: {
@@ -42,6 +46,11 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/content/:id" element={<ContentDetailPage />} />
+
+            <Route path="/movies" element={<MoviesPage />} />
+            <Route path="/series" element={<SeriesPage />} />
+            <Route path="/documentaries" element={<DocumentariesPage />} />
+            <Route path="/my-list" element={<PrivateRoute><MyListPage /></PrivateRoute>} />
             
             <Route 
               path="/player/:contentId" 
