@@ -15,6 +15,7 @@ import MoviesPage from './pages/MoviesPage';
 import SeriesPage from './pages/SeriesPage';
 import DocumentariesPage from './pages/DocumentariesPage';
 import MyListPage from './pages/MyListPage';
+import SearchPage from './pages/SearchPage';
 
 const darkTheme = createTheme({
   palette: {
@@ -51,6 +52,7 @@ function App() {
             <Route path="/series" element={<SeriesPage />} />
             <Route path="/documentaries" element={<DocumentariesPage />} />
             <Route path="/my-list" element={<PrivateRoute><MyListPage /></PrivateRoute>} />
+            <Route path="/search" element={<SearchPage />} />
             
             <Route 
               path="/player/:contentId" 

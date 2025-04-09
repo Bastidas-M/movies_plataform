@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Typography, Box, Grid } from '@mui/material';
+import { Container, Typography, Box, Grid, CircularProgress } from '@mui/material';
 import axios from 'axios';
 import { API_ENDPOINTS } from '../api/config';
 import ContentCard from '../components/ContentCard';
+import ContentFilters from '../components/ContentFilters';
 import styled from 'styled-components';
 
 const PageContainer = styled(Container)`
@@ -20,29 +21,91 @@ const SeriesGrid = styled(Grid)`
 const SeriesPage = () => {
   const [series, setSeries] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [genres, setGenres] = useState([]);
+  const [filters, setFilters] = useState({
+    genre: '',
+    year: ''
+  });
+  const [appliedFilters, setAppliedFilters] = useState({
+    genre: '',
+    year: ''
+  });
 
+  // Cargar géneros para los filtros (si no los tienes disponibles globalmente)
+  useEffect(() => {
+    const fetchGenres = async () => {
+      try {
+        const response = await axios.get(API_ENDPOINTS.GENRES);
+        if (response.data && Array.isArray(response.data.results)) {
+          setGenres(response.data.results);
+        } else if (Array.isArray(response.data)) {
+          setGenres(response.data);
+        } else {
+          console.error('Formato de respuesta inesperado para géneros:', response.data);
+          setGenres([]);
+        }
+      } catch (error) {
+        console.error('Error fetching genres:', error);
+        setGenres([]);
+      }
+    };
+
+    fetchGenres();
+  }, []);
+
+  // Cargar series con filtros aplicados
   useEffect(() => {
     const fetchSeries = async () => {
+      setLoading(true);
+
       try {
-        const response = await axios.get(API_ENDPOINTS.SERIES);
-        setSeries(response.data.results || response.data);
+        // Construir la URL con filtros
+        let url = API_ENDPOINTS.SERIES;
+        const queryParams = [];
+
+        if (appliedFilters.genre) {
+          queryParams.push(`genres=${appliedFilters.genre}`);
+        }
+        if (appliedFilters.year) {
+          queryParams.push(`release_year=${appliedFilters.year}`);
+        }
+        if (queryParams.length > 0) {
+          url = `${url}?${queryParams.join('&')}`;
+        }
+
+
+        const response = await axios.get(url);
+        setSeries(response.data.results || []);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching series:', error);
+        setSeries([]);
         setLoading(false);
       }
     };
 
     fetchSeries();
-  }, []);
+  }, [appliedFilters]);
+
+  const handleApplyFilters = (newFilters) => {
+    setAppliedFilters(newFilters);
+  };
 
   return (
     <PageContainer maxWidth="xl">
       <Typography variant="h4" gutterBottom>Series</Typography>
       
+      {/* Componente de filtros reutilizable */}
+      <ContentFilters 
+        filters={filters} 
+        setFilters={setFilters} 
+        genres={genres} 
+        onApplyFilters={handleApplyFilters}
+      />
+
       {loading ? (
         <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
-          <Typography>Cargando series...</Typography>
+          <CircularProgress sx={{ color: '#e50914' }} />
         </Box>
       ) : series.length > 0 ? (
         <SeriesGrid container spacing={3}>
@@ -54,7 +117,7 @@ const SeriesPage = () => {
         </SeriesGrid>
       ) : (
         <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
-          <Typography>No se encontraron series disponibles.</Typography>
+          <Typography>No se encontraron series con los filtros seleccionados.</Typography>
         </Box>
       )}
     </PageContainer>

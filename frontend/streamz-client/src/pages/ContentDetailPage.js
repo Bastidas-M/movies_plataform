@@ -106,7 +106,7 @@ const ContentDetailPage = () => {
     return (
       <Container>
         <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
-          <Typography>Contenido no encontrado</Typography>
+          <Typography>Contenido no disponible para tu plan</Typography>
         </Box>
       </Container>
     );

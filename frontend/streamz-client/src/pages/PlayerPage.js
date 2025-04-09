@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { Box, Typography, IconButton, Slider, Grid } from '@mui/material';
-import { PlayArrow, Pause, VolumeUp, VolumeMute, ArrowBack, Fullscreen } from '@mui/icons-material';
+import { PlayArrow, Pause, VolumeUp, VolumeMute, ArrowBack, Fullscreen, Forward10, Replay10 } from '@mui/icons-material';
 import ReactPlayer from 'react-player';
 import axios from 'axios';
 import { API_ENDPOINTS } from '../api/config';
@@ -63,12 +63,28 @@ const PlayerPage = () => {
   const navigate = useNavigate();
   const controlsTimeout = useRef(null);
 
+  const handleForward = () => {
+    const player = playerRef.current;
+    if (player) {
+      const newTime = Math.min(player.getCurrentTime() + 10, duration);
+      player.seekTo(newTime);
+    }
+  };
+
+  const handleRewind = () => {
+    const player = playerRef.current;
+    if (player) {
+      const newTime = Math.max(player.getCurrentTime() - 10, 0);
+      player.seekTo(newTime);
+    }
+  };
+
   useEffect(() => {
     const fetchContent = async () => {
       try {
         const response = await axios.get(`${API_ENDPOINTS.CONTENT}${contentId}/`);
         setContent(response.data);
-        
+
         if (episodeId && response.data.episodes) {
           const ep = response.data.episodes.find(e => e.id === parseInt(episodeId));
           setEpisode(ep);
@@ -79,10 +95,10 @@ const PlayerPage = () => {
     };
 
     fetchContent();
-    
+
     // Ocultar los controles después de un tiempo
     resetControlsTimeout();
-    
+
     return () => {
       if (controlsTimeout.current) {
         clearTimeout(controlsTimeout.current);
@@ -119,7 +135,7 @@ const PlayerPage = () => {
 
   const handleProgress = (state) => {
     setPlayed(state.played);
-    
+
     // Actualizar progreso en el servidor cada 10 segundos
     if (Math.floor(state.playedSeconds) % 10 === 0) {
       updateProgress(state.playedSeconds);
@@ -189,14 +205,23 @@ const PlayerPage = () => {
             style={{ backgroundColor: 'black' }}
           />
         )}
-        
+        <Box p={2} sx={{ position: 'absolute', top: 50, left: 0, zIndex: 2 }}>
+          <IconButton
+            onClick={handleBack}
+            sx={{
+              backgroundColor: 'rgba(0,0,0,0.5)',
+              '&:hover': { backgroundColor: 'rgba(0,0,0,0.7)' },
+              transition: 'background-color 0.3s ease',
+              color: 'white'  // Esto aplicará color blanco al ícono
+            }}
+          >
+            <ArrowBack fontSize="large" />
+          </IconButton>
+        </Box>
         <ControlsOverlay $visible={controlsVisible}>
           <Box p={2}>
-            <IconButton color="inherit" onClick={handleBack}>
-              <ArrowBack fontSize="large" />
-            </IconButton>
+            {/* Vacío o con otros controles superiores si necesitas */}
           </Box>
-          
           <ControlBar>
             <Grid container alignItems="center" spacing={2}>
               <Grid item>
@@ -204,37 +229,49 @@ const PlayerPage = () => {
                   {playing ? <Pause fontSize="large" /> : <PlayArrow fontSize="large" />}
                 </IconButton>
               </Grid>
-              
-              <Grid item xs={8}>
+
+              <Grid item>
+                <IconButton color="inherit" onClick={handleRewind}>
+                  <Replay10 fontSize="medium" />
+                </IconButton>
+              </Grid>
+
+              <Grid item>
+                <IconButton color="inherit" onClick={handleForward}>
+                  <Forward10 fontSize="medium" />
+                </IconButton>
+              </Grid>
+
+              <Grid item xs={16}>
                 <Slider
                   value={played * 100}
                   onChange={handleSeek}
                   aria-labelledby="continuous-slider"
-                  sx={{ color: '#e50914' }}
+                  sx={{ color: '#e50914', minWidth: '300px' }}
                 />
               </Grid>
-              
+
               <Grid item>
                 <Typography variant="body2">
                   {formatTime(duration * played)} / {formatTime(duration)}
                 </Typography>
               </Grid>
-              
+
               <Grid item>
                 <IconButton color="inherit" onClick={handleMute}>
                   {muted ? <VolumeMute /> : <VolumeUp />}
                 </IconButton>
               </Grid>
-              
-              <Grid item xs={1}>
+
+              <Grid item xs={4}>
                 <Slider
                   value={muted ? 0 : volume * 100}
                   onChange={handleVolumeChange}
                   aria-labelledby="volume-slider"
-                  sx={{ color: 'white' }}
+                  sx={{ color: 'white', minWidth: '80px' }}
                 />
               </Grid>
-              
+
               <Grid item>
                 <IconButton color="inherit" onClick={handleFullscreen}>
                   <Fullscreen />

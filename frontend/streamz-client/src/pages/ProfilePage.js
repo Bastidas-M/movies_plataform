@@ -130,7 +130,7 @@ const ProfilePage = () => {
                 <Typography variant="h6">{currentUser?.username}</Typography>
                 {currentUser?.plan && (
                   <Typography variant="body2" color="textSecondary">
-                    Plan: {currentUser.plan.name}
+                    Plan: {currentUser.plan_details.name}
                   </Typography>
                 )}
               </Box>

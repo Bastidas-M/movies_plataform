@@ -22,14 +22,12 @@ class ContentViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [AllowAny]
     
     def get_queryset(self):
-    # Modificación para desarrollo - muestra todo el contenido
-        if settings.DEBUG:
-            return Content.objects.all()
-    
-    # Comportamiento original - filtrar por plan
         user = self.request.user
+        
         if user.is_authenticated and hasattr(user, 'plan') and user.plan:
+            print("Plan del usuario:", user.plan)  # O usar logging
             return Content.objects.filter(min_subscription_plan__price__lte=user.plan.price)
+    # Opcional: si el usuario no está autenticado, puedes devolver un queryset vacío o el contenido público
         return Content.objects.none()
     
     def get_serializer_class(self):
@@ -39,21 +37,52 @@ class ContentViewSet(viewsets.ReadOnlyModelViewSet):
     
     @action(detail=False, methods=['get'])
     def movies(self, request):
-        movies = self.get_queryset().filter(content_type='movie')
-        page = self.paginate_queryset(movies)
+        queryset = self.get_queryset().filter(content_type='movie')
+    
+    # Aplica filtros por query params
+        genres = request.query_params.get('genres')
+        release_year = request.query_params.get('release_year')
+
+        if genres:
+            queryset = queryset.filter(genres__id=genres)
+        if release_year:
+            queryset = queryset.filter(release_year=release_year)
+
+        page = self.paginate_queryset(queryset)
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)
+
     
     @action(detail=False, methods=['get'])
     def series(self, request):
-        series = self.get_queryset().filter(content_type='series')
-        page = self.paginate_queryset(series)
+        queryset = self.get_queryset().filter(content_type='series')
+
+    # Filtros manuales
+        genres = request.query_params.get('genres')
+        release_year = request.query_params.get('release_year')
+
+        if genres:
+            queryset = queryset.filter(genres__id=genres)
+        if release_year:
+            queryset = queryset.filter(release_year=release_year)
+
+        page = self.paginate_queryset(queryset)
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)
     
     @action(detail=False, methods=['get'])
     def documentaries(self, request):
-        docs = self.get_queryset().filter(content_type='documentary')
-        page = self.paginate_queryset(docs)
+        queryset = self.get_queryset().filter(content_type='documentary')
+
+    # Filtros manuales
+        genres = request.query_params.get('genres')
+        release_year = request.query_params.get('release_year')
+
+        if genres:
+            queryset = queryset.filter(genres__id=genres)
+        if release_year:
+            queryset = queryset.filter(release_year=release_year)
+
+        page = self.paginate_queryset(queryset)
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)

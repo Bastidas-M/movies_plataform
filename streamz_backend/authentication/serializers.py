@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from .models import User, SubscriptionPlan
 from django.contrib.auth.password_validation import validate_password
+from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
 
 class SubscriptionPlanSerializer(serializers.ModelSerializer):
     class Meta:
@@ -8,9 +10,10 @@ class SubscriptionPlanSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'price', 'max_screens', 'video_quality']
 
 class UserSerializer(serializers.ModelSerializer):
+    plan_details = SubscriptionPlanSerializer(source='plan', read_only=True)
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'plan', 'subscription_active', 'subscription_end_date']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'plan', 'plan_details', 'subscription_active', 'subscription_end_date']
         read_only_fields = ['subscription_active', 'subscription_end_date']
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -29,6 +32,16 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         validated_data.pop('password2')
+        
+        # Establecer la fecha de fin de suscripción un mes después de hoy
+        today = datetime.now().date()
+        subscription_end_date = today + relativedelta(months=1)
+        
+        # Añadir la fecha de fin de suscripción a los datos validados
+        validated_data['subscription_end_date'] = subscription_end_date
+        validated_data['subscription_active'] = True
+        
+        # Crear el usuario
         user = User.objects.create_user(**validated_data)
         return user
 
