@@ -1,10 +1,11 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useCallback  } from 'react';
 import axios from 'axios';
 import { Container, Typography, Box, Grid } from '@mui/material';
 import { API_ENDPOINTS } from '../api/config';
 import ContentCard from '../components/ContentCard';
 import AuthContext from '../context/AuthContext';
 import styled from 'styled-components';
+import ContentFilters from '../components/ContentFilters';
 
 const Section = styled(Box)`
   margin-bottom: 30px;
@@ -46,6 +47,17 @@ const HomePage = () => {
   const [series, setSeries] = useState([]);
   const [documentaries, setDocumentaries] = useState([]);
 
+  const [filters, setFilters] = useState({
+    genre: '',
+    year: ''
+  });
+
+  const [appliedFilters, setAppliedFilters] = useState({
+    genre: '',
+    year: ''
+  });
+  const [genres, setGenres] = useState([]);
+
   useEffect(() => {
     // Fetch trending content for everyone
     axios.get(API_ENDPOINTS.TRENDING)
@@ -77,8 +89,71 @@ const HomePage = () => {
     }
   }, [isAuthenticated]);
 
+  useEffect(() => {
+    const fetchGenres = async () => {
+      try {
+        const response = await axios.get(API_ENDPOINTS.GENRES);
+
+        if (response.data && Array.isArray(response.data.results)) {
+          setGenres(response.data.results);
+        } else if (Array.isArray(response.data)) {
+          setGenres(response.data);
+        } else {
+          console.error('Formato de respuesta inesperado para géneros:', response.data);
+          setGenres([]);
+        }
+      } catch (error) {
+        console.error('Error fetching genres:', error);
+        setGenres([]);
+      }
+    };
+
+    fetchGenres();
+  }, []);
+
+
+  const fetchContentWithFilters = useCallback(async () => {
+    const queryParams = [];
+    if (appliedFilters.genre) queryParams.push(`genres=${appliedFilters.genre}`);
+    if (appliedFilters.year) queryParams.push(`release_year=${appliedFilters.year}`);
+    const queryString = queryParams.length > 0 ? `?${queryParams.join('&')}` : '';
+  
+    try {
+      const moviesRes = await axios.get(`${API_ENDPOINTS.MOVIES}${queryString}`);
+      setMovies(moviesRes.data.results || moviesRes.data);
+    } catch (err) {
+      console.error('Error fetching filtered movies:', err);
+      setMovies([]);
+    }
+  
+    try {
+      const seriesRes = await axios.get(`${API_ENDPOINTS.SERIES}${queryString}`);
+      setSeries(seriesRes.data.results || seriesRes.data);
+    } catch (err) {
+      console.error('Error fetching filtered series:', err);
+      setSeries([]);
+    }
+  
+    try {
+      const docsRes = await axios.get(`${API_ENDPOINTS.DOCUMENTARIES}${queryString}`);
+      setDocumentaries(docsRes.data.results || docsRes.data);
+    } catch (err) {
+      console.error('Error fetching filtered documentaries:', err);
+      setDocumentaries([]);
+    }
+  }, [appliedFilters]);
+  
+  useEffect(() => {
+    fetchContentWithFilters();
+  }, [fetchContentWithFilters]);
+  
+  const handleApplyFilters = (newFilters) => {
+    setAppliedFilters(newFilters);
+  };
+
   return (
     <Container maxWidth="xl" sx={{ py: 4, backgroundColor: '#111', minHeight: '100vh', color: 'white' }}>
+
       {isAuthenticated && continueWatching.length > 0 && (
         <Section>
           <SectionTitle variant="h5">Continuar Viendo</SectionTitle>
@@ -111,6 +186,14 @@ const HomePage = () => {
           </ContentGrid>
         </Section>
       )}
+      <Section>
+        <ContentFilters
+          filters={filters}
+          setFilters={setFilters}
+          genres={genres} // ← ya cargados correctamente
+          onApplyFilters={handleApplyFilters}
+        />
+      </Section>
 
       {movies.length > 0 && (
         <Section>

@@ -1,7 +1,7 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AppBar, Toolbar, Typography, Button, IconButton, Menu, MenuItem } from '@mui/material';
-import { Search as AccountCircle } from '@mui/icons-material';
+import { Search as SearchIcon, AccountCircle, Home as HomeIcon } from '@mui/icons-material';
 import styled from 'styled-components';
 import AuthContext from '../context/AuthContext';
 
@@ -30,10 +30,16 @@ const SearchInput = styled.input`
   }
 `;
 
+const SearchForm = styled.form`
+  display: flex;
+  align-items: center;
+`;
+
 const Navbar = () => {
   const { isAuthenticated, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -49,6 +55,13 @@ const Navbar = () => {
     navigate('/');
   };
 
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/search?query=${encodeURIComponent(searchQuery)}`);
+    }
+  };
+
   return (
     <StyledAppBar position="static">
       <Toolbar>
@@ -58,6 +71,14 @@ const Navbar = () => {
 
         {isAuthenticated && (
           <>
+            <Button
+              color="inherit"
+              component={Link}
+              to="/"
+              startIcon={<HomeIcon />}
+            >
+              Inicio
+            </Button>
             <Button color="inherit" component={Link} to="/movies">
               Películas
             </Button>
@@ -71,7 +92,16 @@ const Navbar = () => {
               Mi Lista
             </Button>
 
-            <SearchInput placeholder="Buscar títulos..." />
+            <SearchForm onSubmit={handleSearch}>
+              <SearchInput
+                placeholder="Buscar títulos..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <IconButton type="submit" color="inherit">
+                <SearchIcon />
+              </IconButton>
+            </SearchForm>
 
             <IconButton color="inherit" onClick={handleProfileMenuOpen}>
               <AccountCircle />
@@ -92,6 +122,14 @@ const Navbar = () => {
 
         {!isAuthenticated && (
           <>
+            <Button
+              color="inherit"
+              component={Link}
+              to="/"
+              startIcon={<HomeIcon />}
+            >
+              Inicio
+            </Button>
             <Button color="inherit" component={Link} to="/login">
               Iniciar Sesión
             </Button>
