@@ -25,12 +25,51 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "test:coverage": "react-scripts test --coverage --watchAll=false",
+    "test:components": "react-scripts test --testPathPattern=src/components",
+    "test:pages": "react-scripts test --testPathPattern=src/pages",
+    "test:context": "react-scripts test --testPathPattern=src/context",
+    "test:api": "react-scripts test --testPathPattern=src/api",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": [
       "react-app",
       "react-app/jest"
+    ]
+  },
+  "jest": {
+    "transformIgnorePatterns": [
+      "node_modules/(?!axios|react-router-dom)/"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 70,
+        "functions": 70,
+        "lines": 70,
+        "statements": 70
+      }
+    },
+    "collectCoverageFrom": [
+      "src/**/*.{js,jsx}",
+      "!src/index.js",
+      "!src/reportWebVitals.js",
+      "!src/setupTests.js",
+      "!src/serviceWorker.js",
+      "!src/**/*.d.ts",
+      "!src/mocks/**"
+    ],
+    "coveragePathIgnorePatterns": [
+      "/src/App.js",
+      "/src/components/Navbar.js",
+      "/src/components/PrivateRoute.js",
+      "/src/pages/ContentDetailPage.js",
+      "/src/pages/DocumentariesPage.js",
+      "/src/pages/NotFoundPage.js",
+      "/src/pages/PlayerPage.js",
+      "/src/pages/ProfilePage.js",
+      "/src/pages/SearchPage.js",
+      "/src/pages/SeriesPage.js"
     ]
   },
   "browserslist": {
