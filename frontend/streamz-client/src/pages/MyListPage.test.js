@@ -5,7 +5,30 @@ import axios from 'axios';
 import MyListPage from './MyListPage';
 import AuthContext from '../context/AuthContext';
 import { API_ENDPOINTS } from '../api/config';
-import { BrowserRouter } from 'react-router-dom';
+
+// Mock navigate function
+const mockNavigate = jest.fn();
+
+// Mock virtual de react-router-dom
+jest.mock('react-router-dom', () => {
+  return {
+    BrowserRouter: ({ children }) => children,
+    useNavigate: () => mockNavigate,
+    Link: ({ to, children, ...props }) => (
+      <a href={to} {...props} data-testid="mock-link">
+        {children}
+      </a>
+    ),
+    Routes: ({ children }) => children,
+    Route: ({ path, element }) => element,
+    Navigate: ({ to }) => <div>Redirecting to {to}</div>,
+    Outlet: () => <div>Outlet</div>,
+    useParams: () => ({}),
+    useLocation: () => ({ pathname: '/', search: '', hash: '', state: null }),
+    useMatch: () => null,
+    useRoutes: () => null,
+  };
+}, { virtual: true });
 
 // Mocks
 jest.mock('axios');
@@ -30,11 +53,9 @@ describe('MyListPage Component', () => {
   // Helper function to render with context
   const renderWithAuth = (isAuth) => {
     return render(
-      <BrowserRouter>
-        <AuthContext.Provider value={{ isAuthenticated: isAuth }}>
-          <MyListPage />
-        </AuthContext.Provider>
-      </BrowserRouter>
+      <AuthContext.Provider value={{ isAuthenticated: isAuth }}>
+        <MyListPage />
+      </AuthContext.Provider>
     );
   };
 

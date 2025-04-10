@@ -5,7 +5,30 @@ import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 import MoviesPage from './MoviesPage';
 import { API_ENDPOINTS } from '../api/config';
-import { BrowserRouter } from 'react-router-dom';
+
+// Mock navigate function
+const mockNavigate = jest.fn();
+
+// Mock virtual de react-router-dom
+jest.mock('react-router-dom', () => {
+  return {
+    BrowserRouter: ({ children }) => children,
+    useNavigate: () => mockNavigate,
+    Link: ({ to, children, ...props }) => (
+      <a href={to} {...props} data-testid="mock-link">
+        {children}
+      </a>
+    ),
+    Routes: ({ children }) => children,
+    Route: ({ path, element }) => element,
+    Navigate: ({ to }) => <div>Redirecting to {to}</div>,
+    Outlet: () => <div>Outlet</div>,
+    useParams: () => ({}),
+    useLocation: () => ({ pathname: '/', search: '', hash: '', state: null }),
+    useMatch: () => null,
+    useRoutes: () => null,
+  };
+}, { virtual: true });
 
 // Mocks
 jest.mock('axios');
@@ -72,11 +95,7 @@ describe('MoviesPage Component', () => {
   
   // Caso de prueba: Carga inicial de películas y géneros
   test('loads and displays movies correctly', async () => {
-    render(
-      <BrowserRouter>
-        <MoviesPage />
-      </BrowserRouter>
-    );
+    render(<MoviesPage />);
     
     // Inicialmente debería mostrar un indicador de carga
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
@@ -95,11 +114,7 @@ describe('MoviesPage Component', () => {
   
   // Caso de prueba: Aplicación de filtros
   test('applies filters correctly', async () => {
-    render(
-      <BrowserRouter>
-        <MoviesPage />
-      </BrowserRouter>
-    );
+    render(<MoviesPage />);
     
     // Esperar a que carguen las películas iniciales
     await waitFor(() => {
@@ -133,11 +148,7 @@ describe('MoviesPage Component', () => {
       return Promise.reject(new Error(`Unexpected URL: ${url}`));
     });
     
-    render(
-      <BrowserRouter>
-        <MoviesPage />
-      </BrowserRouter>
-    );
+    render(<MoviesPage />);
     
     // Después de cargar, debería mostrar mensaje de no resultados
     await waitFor(() => {
@@ -160,11 +171,7 @@ describe('MoviesPage Component', () => {
       return Promise.reject(new Error(`Unexpected URL: ${url}`));
     });
     
-    render(
-      <BrowserRouter>
-        <MoviesPage />
-      </BrowserRouter>
-    );
+    render(<MoviesPage />);
     
     // Después de error, debería mostrar mensaje de no resultados
     await waitFor(() => {
@@ -187,11 +194,7 @@ describe('MoviesPage Component', () => {
       return Promise.reject(new Error(`Unexpected URL: ${url}`));
     });
     
-    render(
-      <BrowserRouter>
-        <MoviesPage />
-      </BrowserRouter>
-    );
+    render(<MoviesPage />);
     
     await waitFor(() => {
       expect(screen.getByText('Action Movie 1')).toBeInTheDocument();
@@ -210,11 +213,7 @@ describe('MoviesPage Component', () => {
       return Promise.reject(new Error(`Unexpected URL: ${url}`));
     });
     
-    render(
-      <BrowserRouter>
-        <MoviesPage />
-      </BrowserRouter>
-    );
+    render(<MoviesPage />);
     
     await waitFor(() => {
       expect(screen.getByText('Action Movie 1')).toBeInTheDocument();
@@ -236,11 +235,7 @@ describe('MoviesPage Component', () => {
       return Promise.reject(new Error(`Unexpected URL: ${url}`));
     });
     
-    render(
-      <BrowserRouter>
-        <MoviesPage />
-      </BrowserRouter>
-    );
+    render(<MoviesPage />);
     
     // A pesar del error en géneros, las películas deberían cargarse
     await waitFor(() => {
@@ -266,11 +261,7 @@ describe('MoviesPage Component', () => {
       return Promise.reject(new Error(`Unexpected URL: ${url}`));
     });
     
-    render(
-      <BrowserRouter>
-        <MoviesPage />
-      </BrowserRouter>
-    );
+    render(<MoviesPage />);
     
     // Las películas deberían cargarse a pesar del formato inesperado
     await waitFor(() => {
