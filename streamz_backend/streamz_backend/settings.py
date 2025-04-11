@@ -1,6 +1,5 @@
 import os
 import environ
-import dj_database_url
 
 # Inicializar environ
 env = environ.Env()
@@ -9,19 +8,24 @@ WSGI_APPLICATION = 'streamz_backend.wsgi.application'
 SECRET_KEY = 'django-insecure-0d8s3hf#k6vn5f2p&13=ysl@psa74ub^_3$dn83g7_nwl*$u_v'
 
 # Leer archivo .env si existe
-environ.Env.read_env()
+
 
 ROOT_URLCONF = 'streamz_backend.urls'
 
 # Configuración de base de datos para desarrollo local y Railway
 # Definir BASE_DIR si no existe
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+environ.Env.read_env(os.path.join(BASE_DIR, '..', '.env'))
 
-# Configuración de base de datos usando SQLite
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('DB_NAME', 'railway'),
+        'USER': os.getenv('DB_USER', 'postgres'),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('DB_PORT', '5432'),
     }
 }
 

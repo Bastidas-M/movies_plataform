@@ -23,12 +23,6 @@ try:
     print("🚀 Ejecutando migraciones...")
     call_command('migrate')
 
-    User = get_user_model()
-    if not User.objects.filter(username='admin').exists():
-        User.objects.create_superuser('StreamZ', 'marino249907@gmail.com', '0112358')
-        print("✅ Superusuario creado: admin / admin123")
-    else:
-        print("ℹ️ El superusuario ya existe.")
 except Exception as e:
     print(f"❌ Error durante migraciones o creación de superusuario: {e}")
 # === FIN: Script temporal ===
